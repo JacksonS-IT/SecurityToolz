@@ -1,0 +1,28 @@
+# Silent Remote Connection Program
+
+import os
+import platform
+import socket
+import subprocess
+
+def connect_device(device_type):
+    if device_type == 'android':
+        os.system('adb connect <device_ip>')
+    elif device_type == 'ios':
+        os.system('idevice_id -l')
+    elif device_type == 'mac':
+        os.system('ssh user@<mac_ip>')
+    elif device_type == 'windows':
+        os.system('psexec \\\\<windows_ip> -u <username> -p <password> cmd')
+    elif device_type == 'linux':
+        os.system('ssh user@<linux_ip>')
+    else:
+        print("Unsupported device type")
+
+def main():
+    devices = ['android', 'ios', 'mac', 'windows', 'linux']
+    for device in devices:
+        connect_device(device)
+
+if __name__ == "__main__":
+    main()
