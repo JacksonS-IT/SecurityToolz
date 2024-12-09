@@ -1,0 +1,17 @@
+# iPhone Unlocker
+
+import os
+import subprocess
+
+def unlock_iphone(device_id):
+    try:
+        # Command to unlock iPhone
+        command = f"ideviceunlock -u {device_id}"
+        subprocess.run(command, shell=True, check=True)
+        print(f"iPhone with device ID {device_id} unlocked successfully.")
+    except subprocess.CalledProcessError:
+        print(f"Failed to unlock iPhone with device ID {device_id}.")
+
+if __name__ == "__main__":
+    device_id = input("Enter the device ID of the iPhone to unlock: ")
+    unlock_iphone(device_id)
