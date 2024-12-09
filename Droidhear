@@ -1,0 +1,43 @@
+# Remote Microphone Recorder for Android Devices
+
+import socket
+import pyaudio
+import wave
+
+# Set up the audio stream
+FORMAT = pyaudio.paInt16
+CHANNELS = 1
+RATE = 44100
+CHUNK = 1024
+WAVE_OUTPUT_FILENAME = "recorded_audio.wav"
+
+audio = pyaudio.PyAudio()
+
+# Start the audio stream
+stream = audio.open(format=FORMAT, channels=CHANNELS,
+                    rate=RATE, input=True,
+                    frames_per_buffer=CHUNK)
+
+frames = []
+
+try:
+    print("Recording...")
+    while True:
+        data = stream.read(CHUNK)
+        frames.append(data)
+except KeyboardInterrupt:
+    print("Recording stopped.")
+
+# Stop and close the stream
+stream.stop_stream()
+stream.close()
+audio.terminate()
+
+# Save the recorded data as a WAV file
+with wave.open(WAVE_OUTPUT_FILENAME, 'wb') as wf:
+    wf.setnchannels(CHANNELS)
+    wf.setsampwidth(audio.get_sample_size(FORMAT))
+    wf.setframerate(RATE)
+    wf.writeframes(b''.join(frames))
+
+print(f"Audio recorded and saved as {WAVE_OUTPUT_FILENAME}.")
