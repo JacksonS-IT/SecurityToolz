@@ -1,0 +1,45 @@
+import pyaudio
+import wave
+import socket
+
+# Set up the server
+HOST = '0.0.0.0'  # Listen on all interfaces
+PORT = 5000
+
+# Initialize PyAudio
+p = pyaudio.PyAudio()
+
+# Start recording
+def start_recording():
+    stream = p.open(format=pyaudio.paInt16,
+                    channels=1,
+                    rate=44100,
+                    input=True,
+                    frames_per_buffer=1024)
+    frames = []
+
+    try:
+        while True:
+            data = stream.read(1024)
+            frames.append(data)
+    except KeyboardInterrupt:
+        pass
+
+    stream.stop_stream()
+    stream.close()
+    return frames
+
+# Save the recorded audio
+def save_recording(frames):
+    wave_file = wave.open('recording.wav', 'wb')
+    wave_file.setnchannels(1)
+    wave_file.setsampwidth(p.get_sample_size(pyaudio.paInt16))
+    wave_file.setframerate(44100)
+    wave_file.writeframes(b''.join(frames))
+    wave_file.close()
+
+# Main function
+if __name__ == "__main__":
+    frames = start_recording()
+    save_recording(frames)
+    p.terminate()
