@@ -1,0 +1,30 @@
+# iPhone Locator Script
+
+import os
+import requests
+
+def locate_iphone(device_id, api_key):
+    url = f"https://api.iphonelocator.com/v1/devices/{device_id}/location"
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    }
+    
+    response = requests.get(url, headers=headers)
+    
+    if response.status_code == 200:
+        location_data = response.json()
+        return location_data['location']
+    else:
+        return None
+
+if __name__ == "__main__":
+    device_id = "your_device_id_here"
+    api_key = "your_api_key_here"
+    
+    location = locate_iphone(device_id, api_key)
+    
+    if location:
+        print(f"iPhone Location: {location}")
+    else:
+        print("Failed to locate the iPhone.")
