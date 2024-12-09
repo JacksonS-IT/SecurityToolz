@@ -1,0 +1,36 @@
+# Android TV Remote Control Program
+
+import socket
+
+class AndroidTVRemote:
+    def __init__(self, ip_address, port=5555):
+        self.ip_address = ip_address
+        self.port = port
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    def send_command(self, command):
+        self.sock.sendto(command.encode(), (self.ip_address, self.port))
+
+    def power_on(self):
+        self.send_command("POWER_ON")
+
+    def power_off(self):
+        self.send_command("POWER_OFF")
+
+    def volume_up(self):
+        self.send_command("VOLUME_UP")
+
+    def volume_down(self):
+        self.send_command("VOLUME_DOWN")
+
+    def navigate(self, direction):
+        self.send_command(f"NAVIGATE_{direction.upper()}")
+
+if __name__ == "__main__":
+    tv_ip = "192.168.1.100"  # Replace with your Android TV's IP address
+    remote = AndroidTVRemote(tv_ip)
+
+    remote.power_on()
+    remote.volume_up()
+    remote.navigate("LEFT")
+    remote.power_off()
