@@ -1,0 +1,29 @@
+#Python Cross-Platform Script for importing log files from remote devices
+
+import os
+import requests
+
+def download_logs(device_type):
+    log_urls = {
+        'android': 'http://example.com/android/logs.zip',
+        'ios': 'http://example.com/ios/logs.zip',
+        'windows': 'http://example.com/windows/logs.zip',
+        'mac': 'http://example.com/mac/logs.zip',
+        'linux': 'http://example.com/linux/logs.zip'
+    }
+
+    if device_type in log_urls:
+        response = requests.get(log_urls[device_type])
+        if response.status_code == 200:
+            with open(f'{device_type}_logs.zip', 'wb') as file:
+                file.write(response.content)
+            print(f'{device_type.capitalize()} logs downloaded successfully.')
+        else:
+            print(f'Failed to download {device_type} logs. Status code: {response.status_code}')
+    else:
+        print('Invalid device type. Please choose from android, ios, windows, mac, or linux.')
+
+if __name__ == "__main__":
+    devices = ['android', 'ios', 'windows', 'mac', 'linux']
+    for device in devices:
+        download_logs(device)
