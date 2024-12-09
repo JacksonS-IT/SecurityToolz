@@ -1,0 +1,78 @@
+# Webcam Capture Program
+
+import cv2
+import socket
+import threading
+import tkinter as tk
+from tkinter import messagebox
+
+class WebcamCapture:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.is_running = False
+
+    def start_capture(self):
+        self.is_running = True
+        self.capture_thread = threading.Thread(target=self.capture)
+        self.capture_thread.start()
+
+    def capture(self):
+        cap = cv2.VideoCapture(0)
+        while self.is_running:
+            ret, frame = cap.read()
+            if ret:
+                self.send_frame(frame)
+
+        cap.release()
+
+    def send_frame(self, frame):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        _, buffer = cv2.imencode('.jpg', frame)
+        sock.sendto(buffer.tobytes(), (self.host, self.port))
+
+    def stop_capture(self):
+        self.is_running = False
+        self.capture_thread.join()
+
+class App:
+    def __init__(self, master):
+        self.master = master
+        master.title("Webcam Capture")
+
+        self.host_label = tk.Label(master, text="Host:")
+        self.host_label.pack()
+
+        self.host_entry = tk.Entry(master)
+        self.host_entry.pack()
+
+        self.port_label = tk.Label(master, text="Port:")
+        self.port_label.pack()
+
+        self.port_entry = tk.Entry(master)
+        self.port_entry.pack()
+
+        self.start_button = tk.Button(master, text="Start Capture", command=self.start_capture)
+        self.start_button.pack()
+
+        self.stop_button = tk.Button(master, text="Stop Capture", command=self.stop_capture)
+        self.stop_button.pack()
+
+        self.capture = None
+
+    def start_capture(self):
+        host = self.host_entry.get()
+        port = int(self.port_entry.get())
+        self.capture = WebcamCapture(host, port)
+        self.capture.start_capture()
+        messagebox.showinfo("Info", "Capture Started")
+
+    def stop_capture(self):
+        if self.capture:
+            self.capture.stop_capture()
+            messagebox.showinfo("Info", "Capture Stopped")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = App(root)
+    root.mainloop()
