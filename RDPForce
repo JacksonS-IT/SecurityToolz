@@ -1,0 +1,10 @@
+# Force RDP Connection Without Credentials
+
+import os
+
+def force_rdp_connection(ip_address):
+    os.system(f"mstsc /v:{ip_address} /admin")
+
+if __name__ == "__main__":
+    target_ip = input("Enter the IP address of the target machine: ")
+    force_rdp_connection(target_ip)
