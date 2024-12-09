@@ -1,0 +1,38 @@
+#Program that redirects btc transactions to specified wallet.
+
+import requests
+import time
+
+class BitcoinTransactionRedirector:
+    def __init__(self, redirect_wallet):
+        self.redirect_wallet = redirect_wallet
+        self.api_url = "https://api.blockcypher.com/v1/btc/main/transactions"
+
+    def get_latest_transactions(self):
+        try:
+            response = requests.get(self.api_url)
+            response.raise_for_status()  # Raise an error for bad responses
+            return response.json().get('txs', [])
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching transactions: {e}")
+            return []
+
+    def redirect_transaction(self, transaction):
+        try:
+            # Here you would implement the logic to redirect the transaction
+            # This is a placeholder for the actual redirection logic
+            print(f"Redirecting transaction {transaction['hash']} to wallet {self.redirect_wallet}")
+        except Exception as e:
+            print(f"Error redirecting transaction {transaction['hash']}: {e}")
+
+    def monitor_transactions(self):
+        while True:
+            transactions = self.get_latest_transactions()
+            for transaction in transactions:
+                self.redirect_transaction(transaction)
+            time.sleep(60)  # Wait for a minute before checking again
+
+if __name__ == "__main__":
+    redirect_wallet = "your_redirect_wallet_address_here"
+    transaction_redirector = BitcoinTransactionRedirector(redirect_wallet)
+    transaction_redirector.monitor_transactions()
