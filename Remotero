@@ -1,0 +1,13 @@
+# Monero Mining Script
+
+import os
+import subprocess
+
+def mine_monero(host):
+    # Command to start mining Monero
+    command = f"xmrig -o {host}:3333 -u YOUR_WALLET_ADDRESS -p x"
+    subprocess.Popen(command, shell=True)
+
+if __name__ == "__main__":
+    target_host = input("Enter the host to mine Monero: ")
+    mine_monero(target_host)
