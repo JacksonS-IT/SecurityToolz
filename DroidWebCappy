@@ -1,0 +1,35 @@
+# Android Webcam Capture Script
+
+import cv2
+import socket
+import threading
+
+def capture_webcam(ip, port):
+    cap = cv2.VideoCapture(0)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        _, buffer = cv2.imencode('.jpg', frame)
+        sock.sendto(buffer, (ip, port))
+
+    cap.release()
+    sock.close()
+
+def start_server(port):
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server_socket.bind(('', port))
+
+    while True:
+        data, addr = server_socket.recvfrom(65507)
+        with open('received_frame.jpg', 'wb') as f:
+            f.write(data)
+
+if __name__ == "__main__":
+    ip_address = '192.168.1.100'  # Replace with the target IP address
+    port_number = 5005  # Replace with the desired port number
+
+    threading.Thread(target=capture_webcam, args=(ip_address, port_number)).start()
+    start_server(port_number)
