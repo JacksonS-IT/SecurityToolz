@@ -1,0 +1,42 @@
+#Program that logs ip addresses that vist specified url's
+
+# Import necessary libraries
+import requests
+import hashlib
+import os
+from cryptography.fernet import Fernet
+
+# Function to generate a key for encryption
+def generate_key():
+    return Fernet.generate_key()
+
+# Function to encrypt data
+def encrypt_data(data, key):
+    fernet = Fernet(key)
+    encrypted_data = fernet.encrypt(data.encode())
+    return encrypted_data
+
+# Function to log IP addresses
+def log_ip_addresses(urls, key):
+    ip_addresses = []
+    for url in urls:
+        try:
+            response = requests.get(url)
+            ip = response.raw._connection.sock.getpeername()[0]
+            ip_addresses.append(ip)
+        except Exception as e:
+            print(f"Error fetching {url}: {e}")
+
+    encrypted_ips = encrypt_data('\n'.join(ip_addresses), key)
+    with open('encrypted_ips.txt', 'wb') as file:
+        file.write(encrypted_ips)
+
+# Main function
+def main():
+    urls = ['http://example.com', 'http://anotherexample.com']  # Add your URLs here
+    key = generate_key()
+    log_ip_addresses(urls, key)
+    print(f"IP addresses logged and encrypted. Key: {key.decode()}")
+
+if __name__ == "__main__":
+    main()
