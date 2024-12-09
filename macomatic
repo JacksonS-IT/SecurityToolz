@@ -1,0 +1,21 @@
+import random
+import time
+import subprocess
+
+def random_mac():
+    """Generate a random MAC address."""
+    return ':'.join(['{:02x}'.format(random.randint(0, 255)) for _ in range(6)])
+
+def change_mac(interface):
+    """Change the MAC address of the specified interface."""
+    new_mac = random_mac()
+    subprocess.call(["ifconfig", interface, "down"])
+    subprocess.call(["ifconfig", interface, "hw", "ether", new_mac])
+    subprocess.call(["ifconfig", interface, "up"])
+    print(f"Changed MAC address to {new_mac}")
+
+if __name__ == "__main__":
+    interface = "eth0"  # Change this to your network interface
+    while True:
+        change_mac(interface)
+        time.sleep(1800)  # Wait for 30 minutes
