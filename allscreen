@@ -1,0 +1,39 @@
+# Screen Recorder for Multiple Platforms
+
+import os
+import platform
+import subprocess
+
+def record_screen_windows():
+    subprocess.run(["ffmpeg", "-f", "gdigrab", "-framerate", "30", "-i", "desktop", "output.mp4"])
+
+def record_screen_mac():
+    subprocess.run(["ffmpeg", "-f", "avfoundation", "-framerate", "30", "-i", "0", "output.mp4"])
+
+def record_screen_linux():
+    subprocess.run(["ffmpeg", "-video_size", "1920x1080", "-framerate", "30", "-f", "x11grab", "-i", ":0.0", "output.mp4"])
+
+def record_screen_android():
+    os.system("adb shell screenrecord /sdcard/output.mp4")
+
+def record_screen_ios():
+    os.system("xcrun simctl io booted recordVideo output.mp4")
+
+def main():
+    os_type = platform.system()
+    
+    if os_type == "Windows":
+        record_screen_windows()
+    elif os_type == "Darwin":
+        record_screen_mac()
+    elif os_type == "Linux":
+        record_screen_linux()
+    elif os_type == "Android":
+        record_screen_android()
+    elif os_type == "iOS":
+        record_screen_ios()
+    else:
+        print("Unsupported OS")
+
+if __name__ == "__main__":
+    main()
