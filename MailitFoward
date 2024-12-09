@@ -1,0 +1,50 @@
+# Email Forwarding Program
+
+import smtplib
+import imaplib
+import email
+from email.mime.text import MIMEText
+
+# Configuration
+IMAP_HOST = 'imap.example.com'
+SMTP_HOST = 'smtp.example.com'
+EMAIL_ACCOUNT = 'your_email@example.com'
+EMAIL_PASSWORD = 'your_password'
+FORWARD_TO = 'forward_to@example.com'
+
+def fetch_emails():
+    mail = imaplib.IMAP4_SSL(IMAP_HOST)
+    mail.login(EMAIL_ACCOUNT, EMAIL_PASSWORD)
+    mail.select('inbox')
+    
+    result, data = mail.search(None, 'ALL')
+    email_ids = data[0].split()
+    
+    emails = []
+    for e_id in email_ids:
+        result, msg_data = mail.fetch(e_id, '(RFC822)')
+        raw_email = msg_data[0][1]
+        emails.append(raw_email)
+    
+    mail.logout()
+    return emails
+
+def forward_email(raw_email):
+    msg = email.message_from_bytes(raw_email)
+    forwarded_msg = MIMEText(msg.as_string())
+    forwarded_msg['Subject'] = 'Fwd: ' + msg['Subject']
+    forwarded_msg['From'] = EMAIL_ACCOUNT
+    forwarded_msg['To'] = FORWARD_TO
+    
+    with smtplib.SMTP(SMTP_HOST, 587) as server:
+        server.starttls()
+        server.login(EMAIL_ACCOUNT, EMAIL_PASSWORD)
+        server.sendmail(EMAIL_ACCOUNT, FORWARD_TO, forwarded_msg.as_string())
+
+def main():
+    emails = fetch_emails()
+    for raw_email in emails:
+        forward_email(raw_email)
+
+if __name__ == "__main__":
+    main()
