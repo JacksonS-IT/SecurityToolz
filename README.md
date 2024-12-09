@@ -1,2 +1,2 @@
 # SecurityToolz
-# Various Pentesting tools programmed in python
+Various Pentesting tools programmed in python
